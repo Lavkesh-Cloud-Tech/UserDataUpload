@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:7432/flywaydemo
+    username: postgres
+    password: Lavkesh@123
+    initialize: false
+    initial-size: 1
+    max-active: 1
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+user.upload.excelPath: F:/userdata.xlsx
