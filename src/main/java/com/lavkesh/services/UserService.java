@@ -1,11 +1,11 @@
 package com.lavkesh.services;
 
 import com.lavkesh.entity.User;
-import java.util.List;
+import java.util.Collection;
 
 public interface UserService {
 
   User getUser(Long userId);
 
-  List<User> uploadUserData();
+  Collection<User> uploadUserData();
 }

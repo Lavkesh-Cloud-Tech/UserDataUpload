@@ -2,7 +2,7 @@ package com.lavkesh.controller;
 
 import com.lavkesh.entity.User;
 import com.lavkesh.services.UserService;
-import java.util.List;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class UserController {
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/user/dataupload")
-  public List<User> uploadUserData() {
+  public Collection<User> uploadUserData() {
     return userService.uploadUserData();
   }
 }

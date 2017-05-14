@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"userId", "firstName", "middleName", "lastName"})
+@EqualsAndHashCode(of = {"userId"})
 @ToString
 public class User {
 

@@ -5,17 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lavkesh.entity.User;
 import com.lavkesh.repository.UserRepository;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +36,21 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<User> uploadUserData() {
+  public Collection<User> uploadUserData() {
+    Collection<User> userList = getUserData();
+    userList = userRepository.save(userList);
+    return userList;
+  };
+
+  public Collection<User> getUserData() {
     List<User> userList = new ArrayList<>();
-    try {
-      File file = new File(userUploadExcelPath);
-      FileInputStream excelFile = new FileInputStream(file);
-      Workbook workbook = new XSSFWorkbook(excelFile);
+    try (Workbook workbook = WorkbookFactory.create(new File(userUploadExcelPath))) {
       Sheet datatypeSheet = workbook.getSheetAt(0);
       Iterator<Row> iterator = datatypeSheet.iterator();
 
       iterator.forEachRemaining(x -> readExcelRow(userList, x));
 
-    } catch (IOException e) {
+    } catch (IOException | InvalidFormatException e) {
       if (e instanceof FileNotFoundException) {
         LOGGER.error("Error in finding user data upload excel", e);
       } else {
@@ -60,9 +59,9 @@ public class UserServiceImpl implements UserService {
     }
 
     Comparator<User> userIdComprator = Comparator.comparing(User::getUserId);
-    List<User> sortedUserList =
-        userList.stream().sorted(userIdComprator).collect(Collectors.toList());
-    return sortedUserList;
+    Set<User> sortedUniqueUserList =
+        userList.stream().sorted(userIdComprator).collect(Collectors.toSet());
+    return sortedUniqueUserList;
   }
 
   private void readExcelRow(List<User> userList, Row row) {
@@ -86,7 +85,7 @@ public class UserServiceImpl implements UserService {
     }
 
     boolean isValid = validateUser(user);
-    if (isValid && cellNumber != 5) {
+    if (isValid) {
       userList.add(user);
     } else {
       try {
