@@ -59,9 +59,9 @@ public class UserServiceImpl implements UserService {
       }
     }
 
-    List<User> sortedUserList = null;
     Comparator<User> userIdComprator = Comparator.comparing(User::getUserId);
-    sortedUserList = userList.stream().sorted(userIdComprator).collect(Collectors.toList());
+    List<User> sortedUserList =
+        userList.stream().sorted(userIdComprator).collect(Collectors.toList());
     return sortedUserList;
   }
 
@@ -77,23 +77,24 @@ public class UserServiceImpl implements UserService {
         try {
           setUserData(user, cellNumber, cellValue);
         } catch (Exception e) {
-          LOGGER.error("Error in parsing user {}", user.getUserId());
-          LOGGER.error("Error is parsing user: ", e);
+          LOGGER.error("Error is read user data: {}", cellValue);
+          LOGGER.error("Error is read user data: ", e);
           break;
         }
       }
       cellNumber++;
     }
 
-    if (cellNumber < 5) {
-      String userStr = "";
-      try {
-        userStr = mapper.writeValueAsString(user);
-      } catch (JsonProcessingException e) {
-      }
-      LOGGER.error("Error is parsing user: ", userStr);
-    } else {
+    boolean isValid = validateUser(user);
+    if (isValid && cellNumber != 5) {
       userList.add(user);
+    } else {
+      try {
+        String userStr = mapper.writeValueAsString(user);
+        LOGGER.error("User is not valid: ", userStr);
+      } catch (JsonProcessingException e) {
+        LOGGER.error("Error is parsing user: ", e);
+      }
     }
   }
 
@@ -144,5 +145,12 @@ public class UserServiceImpl implements UserService {
     } else {
       user.setFirstName(nameArray[0]);
     }
+  }
+
+  private boolean validateUser(User user) {
+    boolean isValid = true;
+    isValid = user != null;
+    isValid = isValid && user.getUserId() != null;
+    return isValid;
   }
 }
